@@ -16,13 +16,13 @@ class LoginScreen extends StatefulWidget {
     super.key,
     required this.accounts,
     required this.streams,
-    this.participantHome,
+    required this.participantHome,
     this.initialInvitationToken,
   });
 
   final ParticipantAccounts accounts;
   final MarathonStreams streams;
-  final ParticipantHomeBuilder? participantHome;
+  final ParticipantHomeBuilder participantHome;
   final String? initialInvitationToken;
 
   @override
@@ -38,7 +38,6 @@ class _LoginScreenState extends State<LoginScreen> {
   late bool _useInvitation = widget.initialInvitationToken != null;
   bool _busy = false;
   _InvitationError? _invitationError;
-  bool get _isOrganizer => widget.participantHome == null;
   bool _invalid = false;
   bool _showPassword = false;
 
@@ -53,30 +52,27 @@ class _LoginScreenState extends State<LoginScreen> {
   void _signIn() {
     // Test account for the local prototype. Release requires server authentication.
     if (kReleaseMode || _busy) return;
-    if (_isOrganizer) {
-      if (_login.text.trim().toLowerCase() == 'zhanna' &&
-          _password.text == 'ZhannaDemo2026') {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(
-            builder: (_) =>
-                AdminScreen(accounts: widget.accounts, streams: widget.streams),
-          ),
-        );
-        return;
-      }
-    } else {
-      final participant = widget.accounts.signIn(_login.text, _password.text);
-      if (participant != null) {
-        _openParticipant(participant);
-        return;
-      }
+    final login = _login.text.trim().toLowerCase();
+    if (login == 'zhanna' && _password.text == 'ZhannaDemo2026') {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              AdminScreen(accounts: widget.accounts, streams: widget.streams),
+        ),
+      );
+      return;
+    }
+    final participant = widget.accounts.signIn(login, _password.text);
+    if (participant != null) {
+      _openParticipant(participant);
+      return;
     }
     setState(() => _invalid = true);
   }
 
   void _openParticipant(Participant participant) {
     ShoppingScope.of(context).selectAccount(participant.login);
-    final destination = widget.participantHome!;
+    final destination = widget.participantHome;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(
         builder: (context) => destination(context, participant),
@@ -86,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _activate() async {
-    if (_isOrganizer || kReleaseMode || _busy) return;
+    if (kReleaseMode || _busy) return;
     final input = _invitation.text.trim();
     if (widget.initialInvitationToken == null && input.isEmpty) {
       setState(() => _invitationError = _InvitationError.empty);
@@ -141,12 +137,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   const AuthBrand(compact: true),
                   const SizedBox(height: 16),
                   Text(
-                    _isOrganizer
-                        ? context.tr(
-                            'Вход для организатора',
-                            'Ұйымдастырушыға кіру',
-                          )
-                        : context.tr('Вход для участницы', 'Қатысушыға кіру'),
+                    _useInvitation
+                        ? context.tr('Вход по ссылке', 'Сілтеме арқылы кіру')
+                        : context.tr('Вход в приложение', 'Қолданбаға кіру'),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -167,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    if (_useInvitation && !_isOrganizer) ...[
+                    if (_useInvitation) ...[
                       if (widget.initialInvitationToken == null)
                         TextField(
                           key: const ValueKey('participant-invitation'),
@@ -218,11 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ] else ...[
                       TextField(
-                        key: ValueKey(
-                          _isOrganizer
-                              ? 'organizer-login'
-                              : 'participant-login',
-                        ),
+                        key: const ValueKey('participant-login'),
                         controller: _login,
                         autocorrect: false,
                         enableSuggestions: false,
@@ -235,11 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 12),
                       TextField(
-                        key: ValueKey(
-                          _isOrganizer
-                              ? 'organizer-password'
-                              : 'participant-password',
-                        ),
+                        key: const ValueKey('participant-password'),
                         controller: _password,
                         obscureText: !_showPassword,
                         autocorrect: false,
@@ -288,25 +273,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(context.tr('Войти', 'Кіру')),
                       ),
                     ],
-                    if (!_isOrganizer)
-                      TextButton(
-                        onPressed: _busy
-                            ? null
-                            : () => setState(
-                                () => _useInvitation = !_useInvitation,
+                    TextButton(
+                      onPressed: _busy
+                          ? null
+                          : () => setState(
+                              () => _useInvitation = !_useInvitation,
+                            ),
+                      child: Text(
+                        _useInvitation
+                            ? context.tr(
+                                'Войти по логину и паролю',
+                                'Логин мен құпиясөз арқылы кіру',
+                              )
+                            : context.tr(
+                                'Войти по ссылке',
+                                'Сілтеме арқылы кіру',
                               ),
-                        child: Text(
-                          _useInvitation
-                              ? context.tr(
-                                  'Войти по логину и паролю',
-                                  'Логин мен құпиясөз арқылы кіру',
-                                )
-                              : context.tr(
-                                  'Войти по ссылке',
-                                  'Сілтеме арқылы кіру',
-                                ),
-                        ),
                       ),
+                    ),
                   ],
                 ],
               ),

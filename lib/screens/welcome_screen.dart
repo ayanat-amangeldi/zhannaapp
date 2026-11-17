@@ -21,55 +21,79 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(actions: const [LanguageSwitch()]),
     body: SafeArea(
-      child: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const AuthBrand(),
-                const SizedBox(height: 26),
-                FilledButton(
-                  key: const ValueKey('continue-as-participant'),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => LoginScreen(
-                        accounts: accounts,
-                        streams: streams,
-                        participantHome: participantHome,
-                      ),
-                    ),
+      child: LayoutBuilder(
+        builder: (context, constraints) => Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 420,
+                  minHeight: (constraints.maxHeight - 48).clamp(
+                    0.0,
+                    double.infinity,
                   ),
-                  child: Row(
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Icon(Icons.person_outline),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          context.tr('Вход для участницы', 'Қатысушыға кіру'),
+                      const AuthBrand(),
+                      const SizedBox(height: 24),
+                      const Spacer(),
+                      Text(
+                        context.tr('Добро пожаловать', 'Қош келдіңіз'),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.6,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        context.tr(
+                          'Войдите по логину и паролю или по ссылке от Жанны.',
+                          'Логин мен құпиясөзді енгізіңіз немесе Жаннаның сілтемесімен кіріңіз.',
+                        ),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF675953),
+                          height: 1.5,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward_rounded, size: 20),
+                      const SizedBox(height: 22),
+                      FilledButton(
+                        key: const ValueKey('continue-as-participant'),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => LoginScreen(
+                              accounts: accounts,
+                              streams: streams,
+                              participantHome: participantHome,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.login_rounded),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                context.tr('Продолжить ко входу', 'Кіруге өту'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.arrow_forward_rounded, size: 20),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                OutlinedButton(
-                  key: const ValueKey('organizer-entry'),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) =>
-                          LoginScreen(accounts: accounts, streams: streams),
-                    ),
-                  ),
-                  child: Text(
-                    context.tr('Вход для организатора', 'Ұйымдастырушыға кіру'),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

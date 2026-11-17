@@ -7,20 +7,9 @@ void main() {
     await tester.pumpWidget(const ZhannaApp());
     final entry = find.byKey(const ValueKey('organizer-entry'));
     final participant = find.byKey(const ValueKey('continue-as-participant'));
+    expect(entry, findsNothing);
     await tester.tap(participant);
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('participant-login')),
-      'zhanna',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('participant-password')),
-      'ZhannaDemo2026',
-    );
-    await tester.tap(find.text('Войти'));
-    await tester.pumpAndSettle();
-    expect(find.text('Неверный логин или пароль.'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsNothing);
     await tester.enterText(
       find.byKey(const ValueKey('participant-login')),
       'aidana',
@@ -35,13 +24,13 @@ void main() {
     expect(find.byIcon(Icons.admin_panel_settings_outlined), findsNothing);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
-    await tester.tap(entry);
+    await tester.tap(participant);
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.byKey(const ValueKey('organizer-login')),
+      find.byKey(const ValueKey('participant-login')),
       'zhanna',
     );
-    final password = find.byKey(const ValueKey('organizer-password'));
+    final password = find.byKey(const ValueKey('participant-password'));
     await tester.enterText(password, 'wrong');
     await tester.tap(find.text('Войти'));
     await tester.pumpAndSettle();
@@ -53,6 +42,6 @@ void main() {
     expect(find.text('Панель Жанны'), findsOneWidget);
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
-    expect(entry, findsOneWidget);
+    expect(participant, findsOneWidget);
   });
 }

@@ -24,9 +24,9 @@ void main() {
 
     await tester.pumpWidget(ZhannaApp(controller: language));
     await tester.pumpAndSettle();
-    await tap(key('organizer-entry'));
-    await tester.enterText(key('organizer-login'), 'zhanna');
-    await tester.enterText(key('organizer-password'), 'ZhannaDemo2026');
+    await tap(key('continue-as-participant'));
+    await tester.enterText(key('participant-login'), 'zhanna');
+    await tester.enterText(key('participant-password'), 'ZhannaDemo2026');
     await tap(find.text('Войти'));
     await tap(find.text('Участницы'));
     await tap(find.text('Добавить участницу'));
